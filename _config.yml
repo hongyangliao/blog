@@ -4,7 +4,7 @@
 
 # Site
 title: hongyangliao
-subtitle: Welcome to My Blog 
+subtitle: Welcome to My Blog
 description: For man is man and master of his fate.
 author: hongyangliao
 language: zh-Hans
@@ -69,7 +69,7 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/hongyangliao/hongyangliao.github.io.git
+  repo: git@github.com:hongyangliao/hongyangliao.github.io.git
   branch: master
 
 search:
