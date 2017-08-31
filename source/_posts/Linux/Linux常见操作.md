@@ -63,6 +63,14 @@ COMMIT
 
   4.添加到自启动，chkconfig iptables on
 
+#### 修改镜像为阿里
+  ```
+  # cd /etc/yum.repos.d && mv CentOS-Base.repo CentOS-Base.repo.bak
+  # wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-6.repo
+  # yum makecache
+  # yum clean all
+  ```
+
 #### 安装wget
   ```
   # yum -y install wget
@@ -203,25 +211,63 @@ COMMIT
     # rpm -e --nodeps mysql-5.1.73-8.el6_8.x86_64
     ```
 
-    3.下载mysql
+    3.下载mysql源
     ```
-    # wget https://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-5.6.37-1.el7.x86_64.rpm-bundle.tar
-
-    ```
-
-    4.解压文件
-    ```
-    # tar -xvf MySQL-5.6.37-1.el7.x86_64.rpm-bundle.tar
+    # wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
     ```
 
-    5.安装mysql服务
+    4.安装mysql源
     ```
-    # rpm -ivh MySQL-5.6.37-1.el7.x86_64.rpm
+    # rpm-ivh mysql-community-release-el6-5.noarch.rpm
     ```
-    如报错，请执行如下操作
+
+    5.执行mysql安全配置向导
     ```
-    #因为要先安装依赖：
-    # yum -y install libaio.so.1 libgcc_s.so.1 libstdc++.so.6
-    #需要升级 这个 libstdc++-4.4.7-4.el6.x86_64
-    # yum  update libstdc++-4.4.7-4.el6.x86_64
+    # mysql_secure_installation
     ```
+    会执行以下设置
+    a)为root用户设置密码
+    b)删除匿名账号
+    c)取消root用户远程登录
+    d)删除test库和对test库的访问权限
+    e)刷新授权表使修改生效
+
+    6.添加mysql服务开机自启
+    ```
+    # vi /etc/rc.d/rc.local
+    ```
+    添加如下内容
+    ```
+    # start mysql server
+    /usr/local/mysql/bin/mysqld start
+    ```
+
+  #### 安装Maven
+    1.下载Maven
+    ```
+    # wget http://ovg7i1lse.bkt.clouddn.com/apache-maven-3.2.5-bin.tar.gz
+    ```
+
+    2.解压并移动至/usr/local
+    ```
+    # tar -zxvf apache-maven-3.2.5-bin.tar.gz
+    # mv apache-maven-3.2.5 /usr/local/maven3.2.5
+    ```
+
+    3.设置环境变量
+    ```
+    # echo 'M2_HOME=/usr/local/maven' >> /etc/profile
+    # echo 'export PATH=$M2_HOME/bin:$PATH' >> /etc/profile
+    ```
+
+    4.打印Java系统属性核环境变量
+    ```
+    #  mvn help:system
+    ```
+
+    5.移动配置文件到本地仓库同级目录
+    ```
+    # cp /usr/local/maven3.2.5/conf/settings.xml /root/.m2
+    ```
+
+    6.修改setting.xml，将源换为阿里的
