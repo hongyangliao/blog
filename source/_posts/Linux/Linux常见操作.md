@@ -82,192 +82,194 @@ COMMIT
   ```
 
 #### 安装vim
-    ```
-    # yum -y install vim
-    ```
+  ```
+  # yum -y install vim
+  ```
 
 #### 安装相关依赖
-    ```
-    # yum -y install gcc-c++ tcl gettext-devel pcre-devel openssl openssl-devel bison flexcurl-devel expat-devel zlib-devel autoconf automake libtool python ncurses-devellibjpeg-devel e2fsprogs-devel sqlite-devel libcurl-devel speex-devel ldns-devel libeditdevelreadline-devel ncurses-devel pam-develnumactl
-    ```
+  ```
+  # yum -y install gcc-c++ tcl gettext-devel pcre-devel openssl openssl-devel bison flexcurl-devel expat-devel zlib-devel autoconf automake libtool python ncurses-devellibjpeg-devel e2fsprogs-devel sqlite-devel libcurl-devel speex-devel ldns-devel libeditdevelreadline-devel ncurses-devel pam-develnumactl
+  ```
 #### 安装时间同步工具
-    1.安装ntpdate
-    ```
-    # yum -y install ntpdate
-    ```
+  1.安装ntpdate
+  ```
+  # yum -y install ntpdate
+  ```
 
-    2.设置定时任务（每一个小时执行一次）
-    ```
-    # echo '0 1 * * * ntpdate cn.pool.ntp.org;hwclock -w' >> /var/spool/cron/root
-    ```
+  2.设置定时任务（每一个小时执行一次）
+  ```
+  # echo '0 1 * * * ntpdate cn.pool.ntp.org;hwclock -w' >> /var/spool/cron/root
+  ```
 
 
 #### 安装JDK
-    方法一：手动解压JDK，设置环境变量
-    1.在/usr/目录下创建java目录
-    ```
-    # mkdir/usr/java
-    ```
+  方法一：手动解压JDK，设置环境变量
+  1.在/usr/目录下创建java目录
+  ```
+  # mkdir/usr/java
+  ```
 
-    2.下载JDK，并解压（使用七牛云下载）
-    ```
-    # wget http://ovg7i1lse.bkt.clouddn.com/jdk-8u144-linux-x64.tar.gz
+  2.下载JDK，并解压（使用七牛云下载）
+  ```
+  # wget http://ovg7i1lse.bkt.clouddn.com/jdk-8u144-linux-x64.tar.gz
     # tar -zxvf jdk-8u144-linux-x64.tar.gz
-    ```
+  ```
 
-    3.设置环境变量
-    ```
-    # vi /etc/profile
-    ````
-    添加内容为
-    ```
-    #set java environment
-    JAVA_HOME=/usr/java/jdk1.8.0_144
-    JRE_HOME=/usr/java/jdk1.8.0_144/jre
-    CLASS_PATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib
-    PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
-    export JAVA_HOME JRE_HOME CLASS_PATH PATH
+  3.设置环境变量
+  ```
+  # vi /etc/profile
+  ```
+  添加内容为
+  ```
+  #set java environment
+  JAVA_HOME=/usr/java/jdk1.8.0_144
+  JRE_HOME=/usr/java/jdk1.8.0_144/jre
+  CLASS_PATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib
+  PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
+  export JAVA_HOME JRE_HOME CLASS_PATH PATH
+  ```
+  使修改生效
+  ```
+  source /etc/profile
+  ```
 
-    ```
-    使修改生效
-    ```
-    source /etc/profile
-    ```
+  4.验证JDK是否生效
+  ```
+  # java -version
+  java version "1.8.0_144"
+  Java(TM) SE Runtime Environment (build 1.8.0_144-b01)
+  Java HotSpot(TM) 64-Bit Server VM (build 25.144-b01, mixed mode)
+  ```
 
-    4.验证JDK是否生效
-    ```
-    # java -version
-    java version "1.8.0_144"
-    Java(TM) SE Runtime Environment (build 1.8.0_144-b01)
-    Java HotSpot(TM) 64-Bit Server VM (build 25.144-b01, mixed mode)
-    ```
+  方法二：使用yum安装JDK
+  1.查看yum库中的jdk版本
+  ```
+  # yum search java|grep jdk
+  ```
 
-    方法二：使用yum安装JDK
-    1.查看yum库中的jdk版本
-    ```
-    # yum search java|grep jdk
-    ```
+  2.选择版本安装
+  ```
+  # yum install java-1.7.0-openjdk
+  ```
 
-    2.选择版本安装
-    ```
-    # yum install java-1.7.0-openjdk
-    ```
+  3.设置环境变量
+  方法三：用rpm安装JDK
+  1.下载rpm安装文件
+  ```
+  # wget http://ovg7i1lse.bkt.clouddn.com/jdk-8u144-linux-x64.rpm
+  ```
 
-    3.设置环境变量
+  2.使用rpm命令安装
+  ```
+  # rpm -ivh jdk-8u144-linux-x64.rpm
+  ```
 
-    方法三：用rpm安装JDK
-    1.下载rpm安装文件
-    ```
-    # wget http://ovg7i1lse.bkt.clouddn.com/jdk-8u144-linux-x64.rpm
-    ```
-
-    2.使用rpm命令安装
-    ```
-    # rpm -ivh jdk-8u144-linux-x64.rpm
-    ```
-
-    3.设置环境变量
+  3.设置环境变量
 
 #### ssh scp 免密码登录
-    1.本机创建公钥、密钥
-    ssh-keygen -t rsa
-    一路回车到底
+  1.本机创建公钥、密钥
+  ssh-keygen -t rsa
+  一路回车到底
 
-    2.把公钥id_rsa.pub复制到远程服务器上~/.ssh目录并命名为authorized_keys
+  2.把公钥id_rsa.pub复制到远程服务器上~/.ssh目录并命名为authorized_keys
 
 #### 远程复制scp
-    1.从本地复制到远程服务器
-    ```
-    # scp local_file remote_username@remote_ip:remote_folder
-    ```
+  1.从本地复制到远程服务器
+  ```
+  # scp local_file remote_username@remote_ip:remote_folder
+  ```
 
-    2.从远程服务器复制到本地
-    ```
-    # $scp remote_username@remote_ip:remote_file local_folder
-    ```
+  2.从远程服务器复制到本地
+  ```
+  # $scp remote_username@remote_ip:remote_file local_folder
+  ```
 
 #### 安装Tomcat
-      1.下载tomcat
-      ```
-      # wget http://mirror.bit.edu.cn/apache/tomcat/tomcat-7/v7.0.81/bin/apache-tomcat-7.0.81.tar.gz
-      ```
+  1.下载tomcat
+  ```
+  # wget http://mirror.bit.edu.cn/apache/tomcat/tomcat-7/v7.0.81/bin/apache-tomcat-7.0.81.tar.gz
+  ```
 
-      2.解压并移动到/usr/local目录
-      ```
-      # tar -zxvf  apache-tomcat-7.0.81.tar.gz
-      # mv apache-tomcat-7.0.81 /usr/local/tomcat7
-      ```
+  2.解压并移动到/usr/local目录
+  ```
+  # tar -zxvf  apache-tomcat-7.0.81.tar.gz
+  # mv apache-tomcat-7.0.81 /usr/local/tomcat7
+  ```
 
-      3.修改admin登录密码
+  3.修改admin登录密码
 
 ####  安装mysql
-    1.检查原先是否装有mysql
-    ```
-    # rpm -qa | grep mysql
-    ```
+  1.检查原先是否装有mysql
+  ```
+  # rpm -qa | grep mysql
+  ```
 
-    2.如果有将其卸载
-    ```
-    # rpm -e --nodeps mysql-5.1.73-8.el6_8.x86_64
-    ```
+  2.如果有将其卸载
+  ```
+  # rpm -e --nodeps mysql-5.1.73-8.el6_8.x86_64
+  ```
 
-    3.下载mysql源
-    ```
-    # wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
-    ```
+  3.下载mysql源
+  ```
+  # wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
+  ```
 
-    4.安装mysql源
-    ```
-    # rpm-ivh mysql-community-release-el6-5.noarch.rpm
-    ```
+  4.安装mysql源
+  ```
+  # rpm-ivh mysql-community-release-el6-5.noarch.rpm
+  ```
 
-    5.执行mysql安全配置向导
-    ```
-    # mysql_secure_installation
-    ```
-    会执行以下设置
-    a)为root用户设置密码
-    b)删除匿名账号
-    c)取消root用户远程登录
-    d)删除test库和对test库的访问权限
-    e)刷新授权表使修改生效
+  5.执行mysql安全配置向导
+  ```
+  # mysql_secure_installation
+  ```
+  会执行以下设置
+  a)为root用户设置密码
+  b)删除匿名账号
+  c)取消root用户远程登录
+  d)删除test库和对test库的访问权限
+  e)刷新授权表使修改生效
 
-    6.添加mysql服务开机自启
-    ```
-    # vi /etc/rc.d/rc.local
-    ```
-    添加如下内容
-    ```
-    # start mysql server
-    /usr/local/mysql/bin/mysqld start
-    ```
+  6.添加mysql服务开机自启
+  ```
+  # vi /etc/rc.d/rc.local
+  ```
+  添加如下内容
+  ```
+  # start mysql server
+  /usr/local/mysql/bin/mysqld start
+  ```
 
-  #### 安装Maven
-    1.下载Maven
-    ```
-    # wget http://ovg7i1lse.bkt.clouddn.com/apache-maven-3.2.5-bin.tar.gz
-    ```
+#### 安装Maven
+  1.下载Maven
+  ```
+  # wget http://ovg7i1lse.bkt.clouddn.com/apache-maven-3.2.5-bin.tar.gz
+  ```
 
-    2.解压并移动至/usr/local
-    ```
-    # tar -zxvf apache-maven-3.2.5-bin.tar.gz
-    # mv apache-maven-3.2.5 /usr/local/maven3.2.5
-    ```
+  2.解压并移动至/usr/local
+  ```
+  # tar -zxvf apache-maven-3.2.5-bin.tar.gz
+  # mv apache-maven-3.2.5 /usr/local/maven3.2.5
+  ```
 
-    3.设置环境变量
-    ```
-    # echo 'M2_HOME=/usr/local/maven' >> /etc/profile
-    # echo 'export PATH=$M2_HOME/bin:$PATH' >> /etc/profile
-    ```
+  3.设置环境变量
+  ```
+  # echo 'M2_HOME=/usr/local/maven' >> /etc/profile
+  # echo 'export PATH=$M2_HOME/bin:$PATH' >> /etc/profile
+  ```
+  使文件生效
+  ```
+  # source /etc/profile
+  ```
 
-    4.打印Java系统属性核环境变量
-    ```
-    #  mvn help:system
-    ```
+  4.打印Java系统属性核环境变量
+  ```
+  #  mvn help:system
+  ```
 
-    5.移动配置文件到本地仓库同级目录
-    ```
-    # cp /usr/local/maven3.2.5/conf/settings.xml /root/.m2
-    ```
+  5.移动配置文件到本地仓库同级目录
+  ```
+  # cp /usr/local/maven3.2.5/conf/settings.xml /root/.m2
+  ```
 
-    6.修改setting.xml，将源换为阿里的
+  6.修改setting.xml，将源换为阿里的
