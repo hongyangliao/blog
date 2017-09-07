@@ -3,7 +3,7 @@ title: tomcat用户配置
 date: 2017-08-30 15:23:53
 tags:
       - Tomcat
-categories： Tomcat
+categories: Tomcat
 ---
 ####  进入Tomcat目录下conf/tomcat-users.xml
   1.Tomcat6配置管理员信息

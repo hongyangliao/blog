@@ -3,7 +3,7 @@ title: tomcat部署项目
 date: 2017-09-07 14:15:28
 tags:
      - Tomcat
-categories： Tomcat
+categories: Tomcat
 ---
 
 #### 第一种方式
