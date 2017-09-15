@@ -254,7 +254,7 @@ COMMIT
 
   3.设置环境变量
   ```
-  # echo 'M2_HOME=/usr/local/maven' >> /etc/profile
+  # echo 'M2_HOME=/usr/local/maven3.2.5' >> /etc/profile
   # echo 'export PATH=$M2_HOME/bin:$PATH' >> /etc/profile
   ```
   使文件生效
@@ -273,3 +273,218 @@ COMMIT
   ```
 
   6.修改setting.xml，将源换为阿里的
+
+#### 安装redis
+  1.下载redis
+  ```
+  # wget http://download.redis.io/releases/redis-3.0.0.tar.gz
+  ```
+  2.复制redis到/usr/local
+  ```
+  # cp redis-3.0.0.rar.gz /user/local
+  ```
+
+  3.解压
+  ```
+  # tar -zxvf redis-3.0.0.tar.gz
+  ```
+
+  4.编译并安装到指定目录
+  ```
+  # cd /usr/local/redis-3.0.0
+  # make PREFIX=/usr/local/redis install
+  ```
+
+  5.将源码中的目录复制到安装目录
+  ```
+  # cd /usr/local/redis
+  # mkdir conf
+  # cp /usr/local/redis-3.0.0/redis.conf  /usr/local/redis/conf
+  ```
+
+  6./usr/local/redis/bin的文件结构
+  ```
+  redis-benchmark redis性能测试工具
+  redis-check-aof AOF文件修复工具
+  redis-check-rdb RDB文件修复工具
+  redis-cli redis命令行客户端
+  redis-sentinal redis集群管理工具
+  redis-server redis服务进程
+  ```
+
+  7.启动redis
+  前端模式启动
+  ```
+  # ./redis-server
+  ```
+
+  后端启动模式(修改/usr/local/redis/conf/redis.conf)
+  ```
+  # vim /usr/local/redis/conf/redis.conf
+  ```
+  修改为
+  ```
+  ################################ GENERAL  #####################################
+
+  # By default Redis does not run as a daemon. Use 'yes' if you need it.
+  # Note that Redis will write a pid file in /var/run/redis.pid when daemonized.
+  daemonize yes
+  ```
+  启动redis
+  ```
+  # cd /usr/local/redis
+  # ./bin/redis-server ./conf/redis.conf
+  ```
+
+  8.加入开机自启
+  ```
+  # vim /etc/rc.local
+  ```
+  在rc.local中中添加
+  ```
+  # redis
+  /usr/local/redis/bin/redis-server /user/local/redis/conf/redis.conf
+  ```
+
+  9.关闭redis
+  ```
+  # cd /usr/local/redis
+  # ./bin/redis-cli shutdown
+  ```
+
+#### 安装nginx
+  1.下载nginx
+  ```
+  # wget http://ovg7i1lse.bkt.clouddn.com/nginx-1.8.0.tar.gz
+  ```
+
+  2.解压并编译
+  ```
+  # tar -zxvf nginx-1.8.0.tar.gz
+  # cd nginx-1.8.0 && ./configure --prefix=/user/local/nginx
+  # make && make install
+  ```
+
+  3.配置开机自启
+  ```
+  # vim /etc/init.d/nginx
+  ```
+  加入如下内容
+  ```
+  #!/bin/sh
+  #
+  # nginx – this script starts and stops the nginx daemon
+  #
+  # chkconfig: - 85 15
+  # description: Nginx is an HTTP(S) server, HTTP(S) reverse \
+  # proxy and IMAP/POP3 proxy server
+  # processname: nginx
+  # 根据安装的不同位置而改变
+  # config: /usr/local/nginx/conf/nginx.conf
+  # pidfile: /usr/local/nginx/logs/nginx.pid
+
+  # Source function library.
+  . /etc/rc.d/init.d/functions
+
+  # Source networking configuration.
+  . /etc/sysconfig/network
+
+  # Check that networking is up.
+  [ "$NETWORKING" = "no" ] && exit 0
+
+  nginx="/usr/local/nginx/sbin/nginx"
+  prog=$(basename $nginx)
+
+  NGINX_CONF_FILE="/usr/local/nginx/conf/nginx.conf"
+
+  lockfile=/var/lock/subsys/nginx
+
+  start() {
+  [ -x $nginx ] || exit 5
+  [ -f $NGINX_CONF_FILE ] || exit 6
+  echo -n $"Starting $prog: "
+  daemon $nginx -c $NGINX_CONF_FILE
+  retval=$?
+  echo
+  [ $retval -eq 0 ] && touch $lockfile
+  return $retval
+  }
+
+  stop() {
+  echo -n $"Stopping $prog: "
+  killproc $prog -QUIT
+  retval=$?
+  echo
+  [ $retval -eq 0 ] && rm -f $lockfile
+  return $retval
+  }
+
+  restart() {
+  configtest || return $?
+  stop
+  start
+  }
+
+  reload() {
+  configtest || return $?
+  echo -n $”Reloading $prog: ”
+  killproc $nginx -HUP
+  RETVAL=$?
+  echo
+  }
+
+  force_reload() {
+  restart
+  }
+
+  configtest() {
+  $nginx -t -c $NGINX_CONF_FILE
+  }
+
+  rh_status() {
+  status $prog
+  }
+
+  rh_status_q() {
+  rh_status >/dev/null 2>&1
+  }
+
+  case "$1" in
+  start)
+  rh_status_q && exit 0
+  $1
+  ;;
+  stop)
+  rh_status_q || exit 0
+  $1
+  ;;
+  restart|configtest)
+  $1
+  ;;
+  reload)
+  rh_status_q || exit 7
+  $1
+  ;;
+  force-reload)
+  force_reload
+  ;;
+  status)
+  rh_status
+  ;;
+  condrestart|try-restart)
+  rh_status_q || exit 0
+  ;;
+  *)
+  echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload|configtest}"
+  exit 2
+  esac
+  ```
+  修改/etc/rc.local
+  ```
+  # vim /etc/rc.local
+  ```
+  加入如下内容
+  ```
+  # nginx
+  /etc/init.d/nginx start
+  ```
