@@ -34,28 +34,36 @@ passwd 命令后面不接任何参数或用户名，则表示修改当前用户�
 ####  iptabels配置
   1.修改/etc/sysconfig/iptbles 文件
   ```
-  # Manual customization of this file is not recommended.
-*filter
-:INPUT ACCEPT [0:0]
-:FORWARD ACCEPT [0:0]
-:OUTPUT ACCEPT [0:0]
-:RH-Firewall-1-INPUT - [0:0]
--A INPUT -j RH-Firewall-1-INPUT
--A FORWARD -j RH-Firewall-1-INPUT
--A RH-Firewall-1-INPUT -i lo -j ACCEPT
--A RH-Firewall-1-INPUT -p icmp –icmp-type any -j ACCEPT
--A RH-Firewall-1-INPUT -p 50 -j ACCEPT
--A RH-Firewall-1-INPUT -p 51 -j ACCEPT
--A RH-Firewall-1-INPUT -m state –state ESTABLISHED,RELATED -j ACCEPT
--A RH-Firewall-1-INPUT -m state –state NEW -m tcp -p tcp –dport 53 -j ACCEPT
--A RH-Firewall-1-INPUT -m state –state NEW -m udp -p udp –dport 53 -j ACCEPT
--A RH-Firewall-1-INPUT -m state –state NEW -m tcp -p tcp –dport 22 -j ACCEPT
--A RH-Firewall-1-INPUT -m state –state NEW -m tcp -p tcp –dport 10022 -j ACCEPT
--A RH-Firewall-1-INPUT -m state –state NEW -m tcp -p tcp –dport 25 -j ACCEPT
--A RH-Firewall-1-INPUT -m state –state NEW -m tcp -p tcp –dport 80 -j ACCEPT
--A RH-Firewall-1-INPUT -m state –state NEW -m tcp -p tcp –dport 443 -j ACCEPT
--A RH-Firewall-1-INPUT -j REJECT –reject-with icmp-host-prohibited
-COMMIT
+  *filter
+  # Allow loopback (lo0) traffic and drop all traffic to 127/8 that doesn't use the lo0 interface
+  -A INPUT -i lo -j ACCEPT
+  -A INPUT -i ! lo -d 127.0.0.0/8 -j REJECT
+  # Accept established inbound connections
+  -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+  # Allow all outbound traffic
+  -A OUTPUT -j ACCEPT
+  # Allow HTTP and HTTPS connections
+  -A INPUT -p tcp --dport 80 -j ACCEPT
+  -A INPUT -p tcp --dport 443 -j ACCEPT
+  # Allow SSH/SFTP
+  # Change the value 22 if you are using a non-standard port
+  -A INPUT -p tcp -m state --state NEW --dport 22 -j ACCEPT
+  # Allow FTP
+  # Purely optional, but required for WordPress to install its own plugins or update itself.
+  -A INPUT -p tcp -m state --state NEW --dport 21 -j ACCEPT
+  # Allow PING
+  # Again, optional. Some disallow this altogether.
+  -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+  # Allow Tomcat connections
+  -A INPUT -p tcp --dport 8080 -j ACCEPT
+  # Allow ShadowSocks connections
+  -A INPUT -p tcp --dport 8381 -j ACCEPT
+  # Allow My SSH connections
+  -A INPUT -p tcp --dport 10022 -j ACCEPT
+  # Reject ALL other inbound
+  -A INPUT -j REJECT
+  -A FORWARD -j REJECT
+  COMMIT
   ```
   2.保存，service iptables save
 
