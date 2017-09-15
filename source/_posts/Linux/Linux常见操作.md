@@ -54,12 +54,6 @@ passwd 命令后面不接任何参数或用户名，则表示修改当前用户�
   # Allow PING
   # Again, optional. Some disallow this altogether.
   -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
-  # Allow Tomcat connections
-  -A INPUT -p tcp --dport 8080 -j ACCEPT
-  # Allow ShadowSocks connections
-  -A INPUT -p tcp --dport 8381 -j ACCEPT
-  # Allow My SSH connections
-  -A INPUT -p tcp --dport 10022 -j ACCEPT
   # Reject ALL other inbound
   -A INPUT -j REJECT
   -A FORWARD -j REJECT
