@@ -59,11 +59,20 @@ passwd 命令后面不接任何参数或用户名，则表示修改当前用户�
   -A FORWARD -j REJECT
   COMMIT
   ```
-  2.保存，service iptables save
+  2.保存
+  ```
+  service iptables save
+  ```
 
-  3.重启，service iptables restart
+  3.重启
+  ```
+  service iptables restart
+  ```
 
-  4.添加到自启动，chkconfig iptables on
+  4.添加到自启动
+  ```
+  chkconfig iptables on
+  ```
 
 #### 修改镜像为阿里
   ```
