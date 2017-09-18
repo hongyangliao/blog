@@ -567,3 +567,96 @@ passwd 命令后面不接任何参数或用户名，则表示修改当前用户�
   ```
   #  /etc/init.d/network restart
   ```
+
+#### 安装Apache
+  1.停止并卸载系统自带的httpd服务
+  ```
+  # service httpd stop
+  # ps -ef | grep httpd
+  # kill -9 pid号（逐个删除）
+  # rpm -qa |grep httpd
+  # rpm -e httpd软件包
+  ```
+
+  2.安装Apache
+  ```
+  # wget http://mirrors.hust.edu.cn/apache//httpd/httpd-2.2.34.tar.gz
+  # tar -zxvf httpd-2.2.34.tar.gz
+  ```
+
+  3.编译
+  ```
+  # ./configure --prefix=/usr/local/apache
+  # make && make install
+  ```
+
+  4.启动、停止、重启
+  启动Apache：/usr/local/apache2/bin/apachectl start
+  停止Apache：/usr/local/apache2/bin/apachectl stop
+  重启Apache：/usr/local/apache2/bin/apachectl restart
+
+  5.网站放置目录
+  网站放在/usr/local/apache/htdocs
+
+#### 安装php
+  1.安装依赖文件(不安装的话，自己会安装很多东西)
+  ```
+  # yum groupinstall "Development tools"
+  # yum install libxml2-devel gd-devel libmcrypt-devel libcurl-devel openssl-devel
+  ```
+
+  2.安装php
+  ```
+  # wget http://php.net/get/php-5.5.38.tar.gz/from/this/mirror
+  # tar -zxvf php-5.5.38.tar.gz
+  ```
+
+  3.编译
+  ```
+  # ./configure --prefix=/usr/local/php --with-apxs2=/usr/local/apache/bin/apxs --disable-cli --enable-shared --with-libxml-dir --with-gd --with-openssl --enable-mbstring --with-mysqli --with-mysql --enable-opcache --enable-mysqlnd --enable-zip --enable-fpm --enable-fastcgi --with-zlib-dir --with-pdo-mysql --with-jpeg-dir --with-freetype-dir --with-curl --without-pdo-sqlite --without-sqlite3 --with-mcrypt=/usr/local/libmcrypt/
+  # make && make install
+  ```
+
+  4.注意事项
+  如果出现 configure: error: mcrypt.h not found. Please reinstall libmcrypt
+  则需安装libmcrypt
+  ```
+  # wget ftp://mcrypt.hellug.gr/pub/crypto/mcrypt/attic/libmcrypt/libmcrypt-2.5.7.tar.gz
+  # tar -zxvf libmcrypt-2.5.7.tar.gz
+  # cd libmcrypt-2.5.7
+  # ./configure prefix=/usr/local/libmcrypt/
+  # make && make install
+  ```
+
+  5.配置Apache中的PHP环境
+  修改Apache的配置文件httpd.conf
+  在LoadModule中添加：
+  ```
+  LoadModule php5_module modules/libphp5.so
+  ```
+  在AddType application/x-gzip .gz .tgz下面添加：
+  ```
+  AddType application/x-httpd-php .php
+  AddType application/x-httpd-php-source .phps
+  ```
+
+  在DirectoryIndex增加 index.php，以便Apache识别PHP格式的index
+  ```
+  <IfModule dir_module>  
+    DirectoryIndex index.html index.php  
+  </IfModule>
+  ```
+
+  6.验证PHP环境
+  ```
+  # vim /usr/local/apache/htdocs/info.php
+  ```
+  添加如下代码
+  ```
+  <?php
+
+  phpinfo();
+
+  ?>
+  ```
+  访问 http://locahost/info.php 可查看很多信息
