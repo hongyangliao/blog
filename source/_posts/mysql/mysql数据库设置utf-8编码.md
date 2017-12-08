@@ -19,3 +19,17 @@ collation-server = utf8_general_ci
 ```
 show variables like '%char%';
 ```
+
+#### 创建新数据库时使用UTF-8编码
+```
+create database 'test' default character set utf8 collate utf8_general_ci;
+```
+
+#### 创建表,创建字段使用UTF-8编码
+```
+create table test (
+  'id' int(10) unsigned not null auto_increment,
+  'name' varchar(50) character set utf8 default '',
+  primary key('id')
+  ) default charset=utf8;
+```
