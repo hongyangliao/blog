@@ -135,6 +135,11 @@ esac
 exit 0
 ```
 
+##### 执行以下命令
+```
+chkconfig –add tomcat8
+```
+
 
 #### 安装nginx
 ```
@@ -165,7 +170,7 @@ yum install mysql-server
 mysql_secure_installation
 mysql -uroot -p
 use mysql;
-GRANT ALL PRIVILEGES ON *.* TO 'kerby'@'%' IDENTIFIED BY 'kerbywang' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' IDENTIFIED BY 'admin' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ```
 
