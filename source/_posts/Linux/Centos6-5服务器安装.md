@@ -59,27 +59,27 @@ echo '0 1 * * * ntpdate cn.pool.ntp.org;hwclock -w' >> /var/spool/cron/root
 #### 安装java
 ```
 mkdir -p /opt/java
-cd ~ && wget http://storage.csf89757.com/jdk-8u144-linux-x64.tar.gz
-mv jdk-8u144-linux-x64.tar.gz /opt/java/
+cd ~ && wget http://qiniu.hongyangliao.com/jdk-8u151-linux-x64.tar.gz
+mv jdk-8u151-linux-x64.tar.gz /opt/java/
 cd /opt/java
-tar -xzvf jdk-8u144-linux-x64.tar.gz
-rm -rf jdk-8u144-linux-x64.tar.gz
-echo 'export JAVA_HOME=/opt/java/jdk1.8.0_144' >> /etc/profile
+tar -xzvf jdk-8u151-linux-x64.tar.gz
+rm -rf jdk-8u151-linux-x64.tar.gz
+echo 'export JAVA_HOME=/opt/java/jdk1.8.0_151' >> /etc/profile
 echo 'exportCLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib/rt.jar' >> /etc/profile
 echo 'export PATH=$JAVA_HOME/bin:$PATH' >> /etc/profile
 cd /usr/bin
-ln -s -f /opt/java/jdk1.8.0_144/jre/bin/java
-ln -s -f /opt/java/jdk1.8.0_144/bin/javac
+ln -s -f /opt/java/jdk1.8.0_151/jre/bin/java
+ln -s -f /opt/java/jdk1.8.0_151/bin/javac
 ```
 
 #### 安装Tomcat
 ```
-cd ~ && wget http://storage.csf89757.com/apache-tomcat-8.0.46.tar.gz
-mv apache-tomcat-8.0.46.tar.gz /usr/local/
+cd ~ && wget http://qiniu.hongyangliao.com/apache-tomcat-8.5.24.tar.gz
+mv apache-tomcat-8.5.24.tar.gz /usr/local/
 cd /usr/local
-tar -xzvf apache-tomcat-8.0.46.tar.gz
-mv apache-tomcat-8.0.46 tomcat8
-mv apache-tomcat-8.0.46.tar.gz /usr/local/src
+tar -xzvf apache-tomcat-8.5.24.tar.gz
+mv apache-tomcat-8.5.24 tomcat8
+mv apache-tomcat-8.5.24.tar.gz /usr/local/src
 echo 'export CATALINA_HOME=/usr/local/tomcat8' >> /etc/profile
 source /etc/profile
 ```
@@ -103,7 +103,7 @@ touch tomcat8 && chmod 755 tomcat8 && vim tomcat8
 . /etc/rc.d/init.d/functions
 
 prog=tomcat8
-JAVA_HOME=/opt/java/jdk1.8.0_144
+JAVA_HOME=/opt/java/jdk1.8.0_151
 export JAVA_HOME    
 CATALANA_HOME=/usr/local/tomcat8
 export CATALINA_HOME    
@@ -137,28 +137,255 @@ exit 0
 
 ##### 执行以下命令
 ```
-chkconfig –add tomcat8
+chkconfig --add tomcat8
+chkconfig --level 345 tomcat8
 ```
-
 
 #### 安装nginx
+##### 下载并安装nginx
 ```
-cd && wget http://storage.csf89757.com/nginx-1.8.0.tar.gz
-wget http://storage.csf89757.com/vhosts.tar.gz
-wget http://storage.csf89757.com/nginx
-wget http://storage.csf89757.com/nginx.conf
-mv nginx-1.8.0.tar.gz /usr/local/src
-cd /usr/local/src && tar -xzvf nginx-1.8.0.tar.gz
-cd nginx-1.8.0 && ./configure --prefix=/opt/nginx
+cd && wget http://qiniu.hongyangliao.com/nginx-1.8.1.tar.gz
+mv nginx-1.8.1.tar.gz /usr/local/src
+cd /usr/local/src && tar -xzvf nginx-1.8.1.tar.gz
+cd nginx-1.8.1 && ./configure --prefix=/usr/local/nginx
 make && make install
-mv /opt/nginx/conf/nginx.conf /opt/nginx/conf/nginx.conf.bak
-mv ~/nginx.conf /opt/nginx/conf
-cd ~ && tar -xzvf vhosts.tar.gz && mv vhosts /opt/nginx && rm -rf vhosts.tar.gz
-mv ~/nginx /etc/init.d
+```
+
+##### 设置nginx自启
+```
+cd /etc/init.d
+touch nginx
+vim nginx
+```
+
+添加如下内容
+
+```
+#!/bin/bash  
+# nginx Startup script for the Nginx HTTP Server  
+#  
+# chkconfig: - 85 15  
+# description: Nginx is a high-performance web and proxy server.  
+# It has a lot of features, but it's not for everyone.  
+# processname: nginx  
+# pidfile: /usr/local/nginx/logs/nginx.pid  
+# config: /usr/local/nginx/conf/nginx.conf  
+nginxd=/usr/local/nginx/sbin/nginx  
+nginx_config=/usr/local/nginx/conf/nginx.conf  
+nginx_pid=/usr/local/nginx/nginx.pid  
+
+RETVAL=0  
+prog="nginx"
+
+# Source function library.  
+. /etc/rc.d/init.d/functions  
+
+# Source networking configuration.  
+. /etc/sysconfig/network  
+
+# Check that networking is up.  
+[ ${NETWORKING} = "no" ] && exit 0  
+
+[ -x $nginxd ] || exit 0  
+
+
+# Start nginx daemons functions.  
+start() {  
+
+if [ -e $nginx_pid ];then
+   echo "nginx already running...."
+   exit 1  
+fi  
+
+   echo -n $"Starting $prog: "
+   daemon $nginxd -c ${nginx_config}  
+   RETVAL=$?  
+   echo  
+   [ $RETVAL = 0 ] && touch /var/lock/subsys/nginx  
+   return $RETVAL  
+
+}  
+
+
+# Stop nginx daemons functions.  
+stop() {  
+        echo -n $"Stopping $prog: "
+        killproc $nginxd  
+        RETVAL=$?  
+        echo  
+        [ $RETVAL = 0 ] && rm -f /var/lock/subsys/nginx /var/run/nginx.pid  
+}  
+
+
+# reload nginx service functions.  
+reload() {  
+
+    echo -n $"Reloading $prog: "
+ $nginxd -s reload  
+    #if your nginx version is below 0.8, please use this command: "kill -HUP `cat ${nginx_pid}`"
+    RETVAL=$?  
+    echo  
+
+}  
+
+# See how we were called.  
+case "$1" in
+start)  
+        start  
+        ;;  
+
+stop)  
+        stop  
+        ;;  
+
+reload)  
+        reload  
+        ;;  
+
+restart)  
+        stop  
+        start  
+        ;;  
+
+status)  
+        status $prog  
+        RETVAL=$?  
+        ;;  
+*)  
+        echo $"Usage: $prog {start|stop|restart|reload|status|help}"
+        exit 1  
+esac  
+
+exit $RETVAL
+```
+保存,接着设置自启
+```
 chmod +x /etc/init.d/nginx
 chkconfig --add nginx
 chkconfig --level 345 nginx on
 service nginx start
+```
+
+#### 安装Redis
+```
+cd && wget http://qiniu.hongyangliao.com/redis-4.0.6.tar.gz
+tar -zxvf redis-4.0.6.tar.gz
+cd redis-4.0.6 && make PREFIX=/usr/local/redis install
+cd /usr/local/redis && mkdir conf
+cp ~/redis-4.0.6/redis.conf /usr/local/redis/conf
+
+```
+##### 设置后端启动Redis
+```
+vim /usr/local/redis/conf/redis.conf
+```
+将 daemonize yes 以后端模式启动
+```
+################################# GENERAL #####################################
+
+# By default Redis does not run as a daemon. Use 'yes' if you need it.
+# Note that Redis will write a pid file in /var/run/redis.pid when daemonized.
+daemonize yes
+
+```
+##### 设置redis服务自启
+```
+cd /etc/init.d && touch redis && chmod +x redis
+vim redis
+```
+在redis文件中添加如下内容,注意redis_pid的值
+```
+cd /etc/init.d
+touch redis
+vim redis
+```
+```
+#!/bin/bash
+#
+# chkconfig: - 85 15
+# script_name:redisd
+# description:redis daemon
+# config: /usr/local/redis/conf/redisd.conf
+# pidfile: /var/run/redis-server.pid
+#
+### BEGIN INIT INFO
+# Provides: redis
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+#variables
+redis_port='6379'
+redis_pid='/var/run/redis_'$redis_port'.pid'
+redis_server="/usr/local/redis/bin/redis-server"
+redis_conf="/usr/local/redis/conf/redis.conf"
+redis_cli="/usr/local/redis/bin/redis-cli"
+
+#function
+function _start() {
+    if [ ! -e "$redis_pid" ];then
+        "$redis_server" "$redis_conf"
+        echo "redis service start.......OK"
+        return 0
+    else
+        echo "redis service is running !"
+        return 1
+    fi
+}
+
+function _stop() {
+
+    if [ -e "$redis_pid" ];then
+         "$redis_cli"  shutdown
+         echo "redis service stop.......OK"
+         sleep 1
+         return 0
+    else
+         echo "redis service is not running !"
+         return 1
+
+    fi
+}
+
+function _status() {
+
+    if [ -e "$redis_pid" ];then
+         echo "redis service is running !"
+         return 0
+    else
+         echo "redis service is not running !"
+         return 1
+    fi
+
+}
+
+
+#main
+case "$1" in
+
+        start)
+               _start
+                ;;
+        stop)
+               _stop
+                ;;
+        status)
+               _status
+               ;;
+        *)
+          echo  "Usage: $0 {start|stop|status}"
+esac
+```
+接着
+```
+chkconfig --add redis
+chkconfig --level 345 redis on
+service redis start
+```
+##### 设置给redis客户端设置软链接
+```
+ln -s /usr/local/redis/bin/redis-cli /usr/local/bin/redis-cli
 ```
 
 #### 安装mysql
@@ -208,10 +435,10 @@ show variables like '%char%';
 
 #### 安装Maven
 ```
-cd ~ && wget http://storage.csf89757.com/apache-maven-3.2.5-bin.tar.gz
-mv apache-maven-3.2.5-bin.tar.gz /usr/local/
-cd /usr/local && tar -xzvf apache-maven-3.2.5-bin.tar.gz
-mv apache-maven-3.2.5 maven
+cd ~ && wget http://qiniu.hongyangliao.com/apache-maven-3.5.2-bin.tar.gz
+mv apache-maven-3.5.2-bin.tar.gz /usr/local/
+cd /usr/local && tar -xzvf apache-maven-3.5.2-bin.tar.gz
+mv apache-maven-3.5.2 maven
 echo 'M2_HOME=/usr/local/maven' >> /etc/profile
 echo 'export PATH=$M2_HOME/bin:$PATH' >> /etc/profile
 source /etc/profile
