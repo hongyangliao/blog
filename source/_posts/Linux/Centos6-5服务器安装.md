@@ -59,7 +59,7 @@ echo '0 1 * * * ntpdate cn.pool.ntp.org;hwclock -w' >> /var/spool/cron/root
 #### 安装java
 ```
 mkdir -p /opt/java
-cd ~ && wget http://qiniu.hongyangliao.com/jdk-8u151-linux-x64.tar.gz
+cd ~ && wget http://ovg7i1lse.bkt.clouddn.com/jdk-8u151-linux-x64.tar.gz
 mv jdk-8u151-linux-x64.tar.gz /opt/java/
 cd /opt/java
 tar -xzvf jdk-8u151-linux-x64.tar.gz
@@ -74,7 +74,7 @@ ln -s -f /opt/java/jdk1.8.0_151/bin/javac
 
 #### 安装Tomcat
 ```
-cd ~ && wget http://qiniu.hongyangliao.com/apache-tomcat-8.5.24.tar.gz
+cd ~ && wget http://ovg7i1lse.bkt.clouddn.com/apache-tomcat-8.5.24.tar.gz
 mv apache-tomcat-8.5.24.tar.gz /usr/local/
 cd /usr/local
 tar -xzvf apache-tomcat-8.5.24.tar.gz
@@ -144,7 +144,7 @@ chkconfig --level 345 tomcat8
 #### 安装nginx
 ##### 下载并安装nginx
 ```
-cd && wget http://qiniu.hongyangliao.com/nginx-1.8.1.tar.gz
+cd && wget http://ovg7i1lse.bkt.clouddn.com/nginx-1.8.1.tar.gz
 mv nginx-1.8.1.tar.gz /usr/local/src
 cd /usr/local/src && tar -xzvf nginx-1.8.1.tar.gz
 cd nginx-1.8.1 && ./configure --prefix=/usr/local/nginx
@@ -268,7 +268,7 @@ service nginx start
 
 #### 安装Redis
 ```
-cd && wget http://qiniu.hongyangliao.com/redis-4.0.6.tar.gz
+cd && wget http://ovg7i1lse.bkt.clouddn.com/redis-4.0.6.tar.gz
 tar -zxvf redis-4.0.6.tar.gz
 cd redis-4.0.6 && make PREFIX=/usr/local/redis install
 cd /usr/local/redis && mkdir conf
@@ -435,7 +435,7 @@ show variables like '%char%';
 
 #### 安装Maven
 ```
-cd ~ && wget http://qiniu.hongyangliao.com/apache-maven-3.5.2-bin.tar.gz
+cd ~ && wget http://ovg7i1lse.bkt.clouddn.com/apache-maven-3.5.2-bin.tar.gz
 mv apache-maven-3.5.2-bin.tar.gz /usr/local/
 cd /usr/local && tar -xzvf apache-maven-3.5.2-bin.tar.gz
 mv apache-maven-3.5.2 maven
