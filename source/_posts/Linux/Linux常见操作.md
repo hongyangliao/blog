@@ -73,7 +73,7 @@ passwd 命令后面不接任何参数或用户名，则表示修改当前用户�
   ```
   chkconfig iptables on
   ```
-  
+
 #### ssh scp 免密码登录
   1.本机创建公钥、密钥
   ssh-keygen -t rsa
