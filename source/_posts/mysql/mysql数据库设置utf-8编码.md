@@ -2,7 +2,7 @@
 title: mysql数据库设置utf-8编码
 date: 2017-11-20 09:22:08
 tags:
-    -mysql
+    - mysql
 categories: mysql            
 ---
 #### 修改/etc/my.cnf或者/etc/mysql/my.cnf文件
