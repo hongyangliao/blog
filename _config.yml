@@ -77,3 +77,14 @@ search:
   field: post
   format: html
   limit: 10000
+
+#启用相应插件
+Plugins:
+- hexo-generator-sitemap
+- hexo-generator-baidu-sitemap
+
+# 自动生成sitemap
+sitemap: 
+  path: sitemap.xml
+baidusitemap: 
+  path: baidusitemap.xml
