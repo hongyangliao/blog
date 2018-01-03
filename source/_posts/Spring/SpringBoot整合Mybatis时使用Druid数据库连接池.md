@@ -34,8 +34,8 @@ categories: Spring
 ```
 #数据库配置
 spring.datasource.url=jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false
-spring.datasource.username=root
-spring.datasource.password=root
+spring.datasource.username=admin
+spring.datasource.password=admin
 spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 # 连接池配置
 # 初始化大小，最小，最大
@@ -48,6 +48,22 @@ spring.datasource.maxWait=60000
 spring.datasource.timeBetweenEvictionRunsMillis=60000  
 # 配置一个连接在池中最小生存的时间，单位是毫秒
 spring.datasource.minEvictableIdleTimeMillis=300000
+# 测试连接是否有效的sql
+spring.datasource.validationQuery=select 'x'
+# 建议配置为true，不影响性能，并且保证安全性
+# 申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效
+spring.datasource.testWhileIdle=true
+# 申请连接时执行validationQuery检测连接是否有效
+spring.datasource.testOnBorrow=false
+# 归还连接时执行validationQuery检测连接是否有效
+spring.datasource.testOnReturn=false
+# 要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true
+spring.datasource.maxPoolPreparedStatementPerConnectionSize=20
+# 属性类型是字符串，通过别名的方式配置扩展插件，常用的插件有：
+# 监控统计用的filter:stat
+# 日志用的filter:log4j
+# 防御sql注入的filter:wall
+spring.datasource.filters=stat,log4j,wall
 ```
 
 #### 创建数据源配置类DataSourceConfig.java,代码如下
@@ -56,6 +72,8 @@ package com.liao.mybatis;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import org.mybatis.spring.annotation.MapperScan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -64,6 +82,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 
 /**
  * 数据源
@@ -73,13 +92,15 @@ import javax.sql.DataSource;
  * @Date 18-1-2 下午8:56
  */
 @Configuration
-@MapperScan("com.liao.**.dao") //扫描映射接口
+@MapperScan("com.liao.**.dao")
 public class DataSourceConfig {
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
 
     @Autowired
     private JdbcConfig jdbcConfig;
 
     @Bean
+    @Primary //在同样的DataSource中，首先使用被标注的DataSource
     public DataSource dataSource() {
         DruidDataSource druidDataSource = new DruidDataSource();
         druidDataSource.setUrl(jdbcConfig.getUrl());
@@ -90,6 +111,18 @@ public class DataSourceConfig {
         druidDataSource.setMaxActive(jdbcConfig.getMaxActive());
         druidDataSource.setTimeBetweenEvictionRunsMillis(jdbcConfig.getTimeBetweenEvictionRunsMillis());
         druidDataSource.setMinEvictableIdleTimeMillis(jdbcConfig.getMinEvictableIdleTimeMillis());
+        druidDataSource.setValidationQuery(jdbcConfig.getValidationQuery());
+        druidDataSource.setTestWhileIdle(jdbcConfig.isTestWhileIdle());
+        druidDataSource.setTestOnBorrow(jdbcConfig.isTestOnBorrow());
+        druidDataSource.setTestOnReturn(jdbcConfig.isTestOnReturn());
+        druidDataSource.setMaxPoolPreparedStatementPerConnectionSize(jdbcConfig.getMaxPoolPreparedStatementPerConnectionSize());
+        try {
+            druidDataSource.setFilters(jdbcConfig.getFilters());
+        } catch (SQLException e) {
+            if (logger.isInfoEnabled()) {
+                logger.info(e.getMessage(), e);
+            }
+        }
         return druidDataSource;
     }
 
@@ -160,6 +193,42 @@ public class DataSourceConfig {
          */
         @Value("${spring.datasource.minEvictableIdleTimeMillis}")
         private long minEvictableIdleTimeMillis;
+
+        /**
+         * 测试连接是否有效的sql
+         */
+        @Value("${spring.datasource.validationQuery}")
+        private String validationQuery;
+
+        /**
+         * 申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，检测连接是否有效
+         */
+        @Value("${spring.datasource.testWhileIdle}")
+        private boolean testWhileIdle;
+
+        /**
+         * 申请连接时,检测连接是否有效
+         */
+        @Value("${spring.datasource.testOnBorrow}")
+        private boolean testOnBorrow;
+
+        /**
+         * 归还连接时,检测连接是否有效
+         */
+        @Value("${spring.datasource.testOnReturn}")
+        private boolean testOnReturn;
+
+        /**
+         * PSCache大小
+         */
+        @Value("${spring.datasource.maxPoolPreparedStatementPerConnectionSize}")
+        private int maxPoolPreparedStatementPerConnectionSize;
+
+        /**
+         * 通过别名的方式配置扩展插件
+         */
+        @Value("${spring.datasource.filters}")
+        private String filters;
 
         public String getUserName() {
             return userName;
@@ -240,6 +309,54 @@ public class DataSourceConfig {
         public void setMinEvictableIdleTimeMillis(long minEvictableIdleTimeMillis) {
             this.minEvictableIdleTimeMillis = minEvictableIdleTimeMillis;
         }
+
+        public String getValidationQuery() {
+            return validationQuery;
+        }
+
+        public void setValidationQuery(String validationQuery) {
+            this.validationQuery = validationQuery;
+        }
+
+        public boolean isTestWhileIdle() {
+            return testWhileIdle;
+        }
+
+        public void setTestWhileIdle(boolean testWhileIdle) {
+            this.testWhileIdle = testWhileIdle;
+        }
+
+        public boolean isTestOnBorrow() {
+            return testOnBorrow;
+        }
+
+        public void setTestOnBorrow(boolean testOnBorrow) {
+            this.testOnBorrow = testOnBorrow;
+        }
+
+        public boolean isTestOnReturn() {
+            return testOnReturn;
+        }
+
+        public void setTestOnReturn(boolean testOnReturn) {
+            this.testOnReturn = testOnReturn;
+        }
+
+        public int getMaxPoolPreparedStatementPerConnectionSize() {
+            return maxPoolPreparedStatementPerConnectionSize;
+        }
+
+        public void setMaxPoolPreparedStatementPerConnectionSize(int maxPoolPreparedStatementPerConnectionSize) {
+            this.maxPoolPreparedStatementPerConnectionSize = maxPoolPreparedStatementPerConnectionSize;
+        }
+
+        public String getFilters() {
+            return filters;
+        }
+
+        public void setFilters(String filters) {
+            this.filters = filters;
+        }
     }
 }
 ```
@@ -272,20 +389,25 @@ public class SessionFactoryConfig {
     private DataSource dataSource;
 
 
-    /**
-     * 创建sqlSessionFactoryBean 实例
-     * 并且设置configtion 如驼峰命名.等等
-     * 设置mapper 映射路径
-     * 设置datasource数据源
+    /***
+     *  创建sqlSessionFactoryBean
+     *  并且设置configtion 如驼峰命名.等等
+     *  设置mapper 映射路径
+     *  设置datasource数据源
      *
-     * @return
+     * @Title: createSqlSessionFactoryBean
+     * @author: hongyangliao
+     * @Date: 18-1-3 上午9:52
+     * @param
+     * @return org.mybatis.spring.SqlSessionFactoryBean sqlSessionFactoryBean实例
+     * @throws
      */
     @Bean(name = "sqlSessionFactory")
     public SqlSessionFactoryBean createSqlSessionFactoryBean() throws IOException {
         SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
-        /** 设置mybatis configuration 扫描路径 */
+        // 设置mybatis configuration 扫描路径
         sqlSessionFactory.setConfigLocation(new ClassPathResource(MYBATIS_CONFIG));
-        /** 设置datasource */
+        // 设置datasource
         sqlSessionFactory.setDataSource(dataSource);
         return sqlSessionFactory;
     }
