@@ -253,3 +253,31 @@ passwd 命令后面不接任何参数或用户名，则表示修改当前用户�
   ?>
   ```
   访问 http://locahost/info.php 可查看很多信息
+
+
+#### 安转rar
+    1.安装依赖库
+    ```
+    # yum install -y gcc gcc-c++ autoconf wget
+    ```
+
+    2.下载源码包
+    ```
+    # wget http://www.rarlab.com/rar/rarlinux-x64-5.3.0.tar.gz
+    ```
+
+    3.解压编译
+    ```
+    tar -zxvf rarlinux-x64-5.3.0.tar.gz
+    cd rar
+    make && make install
+    cp -f rar_static /usr/local/bin/rar && cp -f rar_static /usr/local/bin/unrar
+    cd ..
+    rm -rf rar
+    ```
+
+    4.使用
+    ```
+    解压：rar x filename.rar
+    压缩：rar a targetName.rar dirName
+    ```
